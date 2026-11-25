@@ -1,0 +1,72 @@
+appId: com.displayswitch.app
+productName: DisplaySwitch
+copyright: Copyright © 2026 DisplaySwitch
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+
+asar: true
+
+# 原生 helper 必须落在 Resources/bin 下，生产环境用 process.resourcesPath 定位。
+# 必须按平台区分：否则 Windows 包里会混进 macOS 的 m1ddc，反之亦然。
+# 各平台的目录见下面 mac / win 段。
+
+mac:
+  target:
+    - target: dmg
+      arch:
+        - arm64
+  category: public.app-category.utilities
+  darkModeSupport: true
+  icon: build/icon.png
+  # 本地自签名构建使用 false；要面向公众分发时改为 true 并配置证书与公证
+  hardenedRuntime: false
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    # 窗口搬移功能需要通过 Apple Events 控制 System Events。
+    # 缺少这个键时，TCC 会直接终止 App 而不是弹授权框。
+    NSAppleEventsUsageDescription: DisplaySwitch 需要在切换显示器前，通过“系统事件”把该屏上的窗口移到另一块屏幕。
+  extraResources:
+    - from: resources/bin/darwin-arm64
+      to: bin
+      filter:
+        - '**/*'
+
+dmg:
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  contents:
+    - x: 140
+      y: 200
+    - x: 400
+      y: 200
+      type: link
+      path: /Applications
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.png
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  extraResources:
+    - from: resources/bin/win32-x64
+      to: bin
+      filter:
+        - '**/*'
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  shortcutName: DisplaySwitch
+  deleteAppDataOnUninstall: false

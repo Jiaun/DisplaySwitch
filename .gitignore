@@ -1,0 +1,14 @@
+node_modules/
+out/
+release/
+dist/
+*.log
+.DS_Store
+native/windows/build/
+*.tsbuildinfo
+node_modules*/
+electron.vite.config.*.mjs
+.env*
+!.env.example
+*.pem
+*.key
